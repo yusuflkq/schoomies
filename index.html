@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.grid {
+	--size: 80vmin;
+	
+  display: grid;
+  width: var(--size);
+  aspect-ratio: 1;
+	grid-template-columns: repeat(var(--n), 1fr);
+	cursor: pointer;
+}
+.cell {
+	--abs-i: max(var(--ki,0) - var(--i),var(--i) - var(--ki,0));
+	--abs-j: max(var(--kj,0) - var(--j),var(--j) - var(--kj,0));
+	--rel-i: calc(var(--abs-i)/var(--n));
+	--rel-j: calc(var(--abs-j)/var(--n));
+	--sum: calc(var(--rel-i)*var(--rel-i) + var(--rel-j)*var(--rel-j));
+	--sqr: var(--sum);
+	display: grid;
+	transform-style: preserve-3d;
+	animation: m1 .4s calc(var(--sqr)*.6s) both;
+}
+.cell:before,
+.cell:after {
+	content: "";
+	grid-area: 1/1;
+	background: var(--img1)
+		calc(var(--i)/var(--n)*100%) calc(var(--j)/var(--n)*100%)/var(--size) var(--size);
+	backface-visibility: hidden;
+}
+.cell:after {
+	background-image: var(--img2);
+	transform: rotateY(180deg);
+}
+input:checked + label .cell {
+	animation-name: m2;
+}
+@keyframes m1 {
+  0% {transform: perspective(300px) scale(1.05) rotateY(0deg)}
+  to {transform: perspective(300px) scale(1.05) rotateY(180deg)}
+}
+@keyframes m2 {
+  0% {transform: perspective(300px) scale(1.05) rotateY(180deg)}
+  to {transform: perspective(300px) scale(1.05) rotateY(0deg)}
+}
+
+
+@supports (z-index: sqrt(4)) {
+	.cell {
+		--sqr: sqrt(var(--sum));
+	}
+}
+
+
+body { 
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+	background: #c4eeff;
+}
+input {
+	display: none;
+}
+</style>
+<script>
+window.onload = function() {
+	let n = 14;
+	let p = n*n;
+	let img1 = "https://picsum.photos/id/152/1200/1200";
+	let img2 = "https://picsum.photos/id/360/1200/1200";
+
+	let grid = document.querySelector('.grid');
+	grid.style.setProperty('--n', n);
+	grid.style.setProperty('--img1', 'url(' + img1 + ')');
+	grid.style.setProperty('--img2', 'url(' + img2 + ')');
+
+	for(let j = 0; j < n; j++) {
+		for(let i = 0; i < n; i++) {
+			let cell = document.createElement('div');
+			cell.className = 'cell';
+			cell.style.setProperty('--i', i);
+			cell.style.setProperty('--j', j);
+			grid.appendChild(cell);
+		}
+	}
+
+	grid.addEventListener('mouseover', function(event) {
+		if(event.target.classList.contains('cell')) {
+			grid.style.setProperty('--ki', event.target.style.getPropertyValue('--i'));
+			grid.style.setProperty('--kj', event.target.style.getPropertyValue('--j'));
+		}
+	});
+}
+</script>
+
+</head>
+<body>
+<input type="checkbox" id="image">
+<label class="grid" for="image" style="--n: 14;--img1: url(https://picsum.photos/id/152/1200/1200);--img2: url(https://picsum.photos/id/360/1200/1200)">
+<script>
+let n = 14;
+let p = n*n;
+let img1 = "https://picsum.photos/id/152/1200/1200";
+let img2 = "https://picsum.photos/id/360/1200/1200";
+
+for(let x = 0; x < n; x++) {
+    document.querySelector('.grid:has(.cell[style*="--i: ' + x + '"]:hover)').style.setProperty('--ki', x);
+    document.querySelector('.grid:has(.cell[style*="--j: ' + x + '"]:hover)').style.setProperty('--kj', x);
+}
+
+for(let j = 0; j < n; j++) {
+    for(let i = 0; i < n; i++) {
+        let cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.style.setProperty('--i', i);
+        cell.style.setProperty('--j', j);
+        document.querySelector('.grid').appendChild(cell);
+    }
+}
+</script>
+</body>
+</html>
